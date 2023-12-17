@@ -101,21 +101,28 @@ public class LeagueCustomsService(ILogger<LeagueCustomsService> logger)
         logger.LogInformation("Generating arena team with candidates {Candidates}", candidates);
         candidates.Shuffle();
 
-        var at1 = candidates[0..2];
-        var at2 = candidates[2..4];
-        var at3 = candidates[4..6];
-        var at4 = candidates[6..8];
-
+        if (candidates.length >= 4){
+            var at1 = candidates[0..2];
+            var at2 = candidates[2..4];
+        }
+        if (candidates.length >= 8){
+            var at3 = candidates[4..6];
+            var at4 = candidates[6..8];
+        }
 
 
         var embeds = new DiscordEmbedBuilder()
-            .AddField("Team 1", string.Join(", ", at1.Select(x => silent ? x.Username : x.Mention)))
-            .AddField("Team 2", string.Join(", ", at2.Select(x => silent ? x.Username : x.Mention)))
-            .AddField("Team 3", string.Join(", ", at3.Select(x => silent ? x.Username : x.Mention)))
-            .AddField("Team 4", string.Join(", ", at4.Select(x => silent ? x.Username : x.Mention)))
+            
+            if (candidates.length >= 4){
+                embeds.AddField("Team 1", string.Join(", ", at1.Select(x => silent ? x.Username : x.Mention)))
+                embeds.AddField("Team 2", string.Join(", ", at2.Select(x => silent ? x.Username : x.Mention)))
+            }
             .AddField("Excluded Members", _excluded.Count <= 0 ? "None" : string.Join(", ", _excluded))
-            .Build();
-
+            if (candidates.length >= 8){
+                embeds.AddField("Team 3", string.Join(", ", at3.Select(x => silent ? x.Username : x.Mention)))
+                embeds.AddField("Team 4", string.Join(", ", at4.Select(x => silent ? x.Username : x.Mention)))
+            }
+        embeds.Build();
         var builder = new DiscordMessageBuilder()
             .WithContent("Generated Arena Teams")
             .WithEmbed(embeds)
